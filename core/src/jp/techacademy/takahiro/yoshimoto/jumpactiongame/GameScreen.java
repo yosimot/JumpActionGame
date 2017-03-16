@@ -24,13 +24,14 @@ public class GameScreen extends ScreenAdapter {
     static final float CAMERA_WIDTH = 10;
     static final float CAMERA_HEIGHT = 15;
     static final float WORLD_WIDTH = 10;
-    static final float WORLD_HEIGHT = 15 * 4;   // 4画面分登れば終了
+    static final float WORLD_HEIGHT = 15 * 2;   // 20画面分登れば終了
     static final float GUI_WIDTH = 320;
     static final float GUI_HEIGHT = 480;
 
     static final int GAME_STATE_READY = 0;
     static final int GAME_STATE_PLAYING = 1;
     static final int GAME_STATE_GAMEOVER = 2;
+    static final int GAME_STATE_GOAL = 3;
 
     // 重力
     static final float GRAVITY = -12;
@@ -143,6 +144,7 @@ public class GameScreen extends ScreenAdapter {
         mGame.batch.begin();
         mFont.draw(mGame.batch, "HighScore: " + mHighScore, 16, GUI_HEIGHT - 15);
         mFont.draw(mGame.batch, "Score: " + mScore, 16, GUI_HEIGHT - 35);
+        mFont.draw(mGame.batch, "NORMAL", 230, GUI_HEIGHT - 465);
         mGame.batch.end();
     }
 
@@ -155,10 +157,10 @@ public class GameScreen extends ScreenAdapter {
     // ステージを作成する
     private void createStage() {
         // テクスチャの準備
-        Texture stepTexture = new Texture("step.png");
+        Texture stepTexture = new Texture("eisei.png");
         Texture starTexture = new Texture("star.png");
-        Texture playerTexture = new Texture("uma.png");
-        Texture ufoTexture = new Texture("ufo.png");
+        Texture playerTexture = new Texture("shuttle.png");
+        Texture ufoTexture = new Texture("earth_normal.png");
 
         // stepとstarをゴールの高さまで配置していく
         float y = 0;
@@ -168,7 +170,7 @@ public class GameScreen extends ScreenAdapter {
             int type = mRandom.nextFloat() > 0.8f ? Step.STEP_TYPE_MOVING : Step.STEP_TYPE_STATIC;
             float x = mRandom.nextFloat() * (WORLD_WIDTH - Step.STEP_WIDTH);
 
-            Step step = new Step(type, stepTexture, 0, 0, 144, 36);
+            Step step = new Step(type, stepTexture, 0, 0, 800, 764);
             step.setPosition(x, y);
             mSteps.add(step);
 
@@ -183,11 +185,11 @@ public class GameScreen extends ScreenAdapter {
         }
 
         // Playerを配置
-        mPlayer = new Player(playerTexture, 0, 0, 72, 72);
+        mPlayer = new Player(playerTexture, 0, 0, 799, 634);
         mPlayer.setPosition(WORLD_WIDTH / 2 - mPlayer.getWidth() / 2, Step.STEP_HEIGHT);
 
         // ゴールのUFOを配置
-        mUfo = new Ufo(ufoTexture, 0, 0, 120, 74);
+        mUfo = new Ufo(ufoTexture, 0, 0, 588, 588);
         mUfo.setPosition(WORLD_WIDTH / 2 - Ufo.UFO_WIDTH / 2, y);
     }
 
@@ -202,6 +204,9 @@ public class GameScreen extends ScreenAdapter {
                 break;
             case GAME_STATE_GAMEOVER:
                 updateGameOver();
+                break;
+            case GAME_STATE_GOAL:
+                updateGoal();
                 break;
         }
     }
@@ -246,6 +251,20 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void updateGameOver() {
+        // シャトルを爆発させる
+       Texture playerTexture1 = new Texture("burning.png");
+        mPlayer = new Player(playerTexture1, 0, 0, 800, 666);
+        
+        if(Gdx.input.justTouched()){
+            mGame.setScreen(new ResultScreen(mGame, mScore));
+        }
+    }
+
+    private void updateGoal(){
+        // 地球を笑顔にさせる
+        Texture ufoTexture1 = new Texture("earth_glad.png");
+        mUfo = new Ufo(ufoTexture1, 0, 0, 588, 588);
+
         if(Gdx.input.justTouched()){
             mGame.setScreen(new ResultScreen(mGame, mScore));
         }
@@ -254,7 +273,7 @@ public class GameScreen extends ScreenAdapter {
     private void checkCollision() {
         // UFO(ゴール)とのあたり判定
         if (mPlayer.getBoundingRectangle().overlaps(mUfo.getBoundingRectangle())) {
-            mGameState = GAME_STATE_GAMEOVER;
+            mGameState = GAME_STATE_GOAL;
             return;
         }
 
@@ -308,6 +327,8 @@ public class GameScreen extends ScreenAdapter {
     private void checkGameOver(){
         if(mHeightSoFar - CAMERA_HEIGHT / 2 > mPlayer.getY()){
             Gdx.app.log("JumpActionGame", "GAMEOVER");
+            // 得点を0にする(UFOに着かないと正式な点数として認定されない)
+            mScore = 0;
             mGameState = GAME_STATE_GAMEOVER;
         }
     }
