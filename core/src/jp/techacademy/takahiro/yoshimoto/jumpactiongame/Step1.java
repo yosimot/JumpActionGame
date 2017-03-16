@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 /**
  * Created by Yoshimoto Takahiro on 2017/03/14.
  */
-public class Step extends GameObject{
+public class Step1 extends GameObject{
     // 横幅・高さ
     public static final float STEP_WIDTH = 1.8f;
     public static final float STEP_HEIGHT = 1.5f;
@@ -19,12 +19,12 @@ public class Step extends GameObject{
     public static final int STEP_STATE_VANISH = 1;
 
     // 速度
-    public static final float STEP_VELOCITY = 2.0f;
+    public static final float STEP_VELOCITY = 4.0f;
 
     int mType;
     int mState;
 
-    public Step(int type, Texture texture, int srcX, int srcY, int srcWidth, int srcHeight){
+    public Step1(int type, Texture texture, int srcX, int srcY, int srcWidth, int srcHeight){
         super(texture, srcX, srcY, srcWidth, srcHeight);
         setSize(STEP_WIDTH, STEP_HEIGHT);
         mType = type;

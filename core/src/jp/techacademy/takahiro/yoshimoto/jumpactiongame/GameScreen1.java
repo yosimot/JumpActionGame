@@ -20,18 +20,17 @@ import java.util.Random;
 /**
  * Created by Yoshimoto Takahiro on 2017/03/14.
  */
-public class GameScreen extends ScreenAdapter {
+public class GameScreen1 extends ScreenAdapter {
     static final float CAMERA_WIDTH = 10;
     static final float CAMERA_HEIGHT = 15;
     static final float WORLD_WIDTH = 10;
-    static final float WORLD_HEIGHT = 15 * 20;   // 20画面分登れば終了
+    static final float WORLD_HEIGHT = 15 * 30;   // 30画面分登れば終了
     static final float GUI_WIDTH = 320;
     static final float GUI_HEIGHT = 480;
 
     static final int GAME_STATE_READY = 0;
     static final int GAME_STATE_PLAYING = 1;
     static final int GAME_STATE_GAMEOVER = 2;
-    static final int GAME_STATE_GOAL = 3;
 
     // 重力
     static final float GRAVITY = -12;
@@ -46,12 +45,11 @@ public class GameScreen extends ScreenAdapter {
     FitViewport mGuiViewport;
 
     Random mRandom;
-    List<Step> mSteps;
+    List<Step1> mSteps;
     List<Star> mStars;
     List<Enemy> mEnemies;
-    Ufo mUfo;
-    Player mPlayer;
-    Texture mPlayerTexture;
+    Ufo1 mUfo;
+    Player1 mPlayer;
     float mHeightSoFar; // プレイヤーが地面からどれだけ離れたか
     int mGameState;
     Vector3 mTouchPoint;
@@ -60,7 +58,7 @@ public class GameScreen extends ScreenAdapter {
     int mHighScore;
     Preferences mPrefs;
 
-    public GameScreen(JumpActionGame game) {
+    public GameScreen1(JumpActionGame game) {
         mGame = game;
 
         // 背景の準備
@@ -82,11 +80,10 @@ public class GameScreen extends ScreenAdapter {
 
         // メンバ変数の初期化
         mRandom = new Random();
-        mSteps = new ArrayList<Step>();
-        mStars = new ArrayList<Star>();
         mEnemies = new ArrayList<Enemy>();
+        mSteps = new ArrayList<Step1>();
+        mStars = new ArrayList<Star>();
         mGameState = GAME_STATE_READY;
-        mPlayerTexture = new Texture("shuttle.png");
         mTouchPoint = new Vector3();
         mFont = new BitmapFont(Gdx.files.internal("font.fnt"), Gdx.files.internal("font.png"), false);
         mFont.getData().setScale(0.8f);
@@ -153,7 +150,7 @@ public class GameScreen extends ScreenAdapter {
         mGame.batch.begin();
         mFont.draw(mGame.batch, "HighScore: " + mHighScore, 16, GUI_HEIGHT - 15);
         mFont.draw(mGame.batch, "Score: " + mScore, 16, GUI_HEIGHT - 35);
-        mFont.draw(mGame.batch, "NORMAL", 230, GUI_HEIGHT - 465);
+        mFont.draw(mGame.batch, "HARD", 250, GUI_HEIGHT - 465);
         mGame.batch.end();
     }
 
@@ -168,32 +165,32 @@ public class GameScreen extends ScreenAdapter {
         // テクスチャの準備
         Texture stepTexture = new Texture("eisei.png");
         Texture starTexture = new Texture("star.png");
+        Texture playerTexture = new Texture("shuttle.png");
         Texture ufoTexture = new Texture("earth_normal.png");
         Texture enemyTexture = new Texture("enemy.png");
 
         // stepとstarとenemyをゴールの高さまで配置していく
         float y = 0;
-        float b = 20;
+        float b = 10;
 
         float maxJumpHeight = Player.PLAYER_JUMP_VELOCITY * Player.PLAYER_JUMP_VELOCITY / (2 * -GRAVITY);
         while (y < WORLD_HEIGHT - 5) {
-            int type = mRandom.nextFloat() > 0.8f ? Step.STEP_TYPE_MOVING : Step.STEP_TYPE_STATIC;
-            float x = mRandom.nextFloat() * (WORLD_WIDTH - Step.STEP_WIDTH);
+            int type = mRandom.nextFloat() > 0.7f ? Step1.STEP_TYPE_MOVING : Step1.STEP_TYPE_STATIC;
+            float x = mRandom.nextFloat() * (WORLD_WIDTH - Step1.STEP_WIDTH);
 
-            Step step = new Step(type, stepTexture, 0, 0, 800, 764);
+            Step1 step = new Step1(type, stepTexture, 0, 0, 800, 764);
             step.setPosition(x, y);
             mSteps.add(step);
 
-            if (mRandom.nextFloat() > 0.6f) {
+            if (mRandom.nextFloat() > 0.15f) {
                 Star star = new Star(starTexture, 0, 0, 72, 72);
                 star.setPosition(step.getX() + mRandom.nextFloat(), step.getY() + Star.STAR_HEIGHT + mRandom.nextFloat() * 3);
                 mStars.add(star);
             }
-
-            y += (maxJumpHeight - 0.5f);
+            y += (maxJumpHeight - 1.5f);
             y -= mRandom.nextFloat() * (maxJumpHeight / 3);
         }
-        while(b < WORLD_HEIGHT - 10){
+        while(b < WORLD_HEIGHT - 5){
             int type = mRandom.nextFloat() > 0.1f ? Enemy.ENEMY_TYPE_MOVING : Enemy.ENEMY_TYPE_STATIC;
             float a = mRandom.nextFloat() * (WORLD_WIDTH - Enemy.ENEMY_WIDTH);
 
@@ -201,16 +198,16 @@ public class GameScreen extends ScreenAdapter {
             enemy.setPosition(a, b);
             mEnemies.add(enemy);
 
-            b += (maxJumpHeight + 50.0f);
+            b += (maxJumpHeight + 15.0f);
             b -= mRandom.nextFloat() * (maxJumpHeight / 2);
         }
 
         // Playerを配置
-        mPlayer = new Player(mPlayerTexture, 0, 0, 799, 634);
+        mPlayer = new Player1(playerTexture, 0, 0, 799, 634);
         mPlayer.setPosition(WORLD_WIDTH / 2 - mPlayer.getWidth() / 2, Step.STEP_HEIGHT);
 
         // ゴールのUFOを配置
-        mUfo = new Ufo(ufoTexture, 0, 0, 588, 588);
+        mUfo = new Ufo1(ufoTexture, 0, 0, 588, 588);
         mUfo.setPosition(WORLD_WIDTH / 2 - Ufo.UFO_WIDTH / 2, y);
     }
 
@@ -225,9 +222,6 @@ public class GameScreen extends ScreenAdapter {
                 break;
             case GAME_STATE_GAMEOVER:
                 updateGameOver();
-                break;
-            case GAME_STATE_GOAL:
-                updateGoal();
                 break;
         }
     }
@@ -252,14 +246,14 @@ public class GameScreen extends ScreenAdapter {
             }
         }
 
-        // enemy
-        for(int i = 0; i < mEnemies.size(); i++){
-            mEnemies.get(i).update(delta);
-        }
-
         // step
         for (int i = 0; i < mSteps.size(); i++) {
             mSteps.get(i).update(delta);
+        }
+
+        // enemy
+        for(int i = 0; i < mEnemies.size(); i++){
+            mEnemies.get(i).update(delta);
         }
 
         // player
@@ -277,17 +271,6 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void updateGameOver() {
-        // シャトルを爆発させる
-        mPlayerTexture = new Texture("burning.png");
-
-        if(Gdx.input.justTouched()){
-            mGame.setScreen(new ResultScreen(mGame, mScore));
-        }
-    }
-
-    private void updateGoal(){
-        // 地球を笑顔にさせる(わからない)
-
         if(Gdx.input.justTouched()){
             mGame.setScreen(new ResultScreen(mGame, mScore));
         }
@@ -296,7 +279,7 @@ public class GameScreen extends ScreenAdapter {
     private void checkCollision() {
         // UFO(ゴール)とのあたり判定
         if (mPlayer.getBoundingRectangle().overlaps(mUfo.getBoundingRectangle())) {
-            mGameState = GAME_STATE_GOAL;
+            mGameState = GAME_STATE_GAMEOVER;
             return;
         }
 
@@ -340,7 +323,7 @@ public class GameScreen extends ScreenAdapter {
         }
 
         for (int i = 0; i < mSteps.size(); i++) {
-            Step step = mSteps.get(i);
+            Step1 step = mSteps.get(i);
 
             if (step.mState == Step.STEP_STATE_VANISH) {
                 continue;
@@ -349,7 +332,7 @@ public class GameScreen extends ScreenAdapter {
             if (mPlayer.getY() > step.getY()) {
                 if (mPlayer.getBoundingRectangle().overlaps(step.getBoundingRectangle())) {
                     mPlayer.hitStep();
-                    if (mRandom.nextFloat() > 0.5f) {
+                    if (mRandom.nextFloat() > 0.15f) {
                         step.vanish();
                     }
                     break;

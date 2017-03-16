@@ -59,11 +59,12 @@ public class ResultScreen extends ScreenAdapter {
         mGame.batch.begin();
         mBg.draw(mGame.batch);
         mFont.draw(mGame.batch, "Score: " + mScore, 0, GUI_HEIGHT / 2 + 40, GUI_WIDTH, Align.center, false);
-        mFont.draw(mGame.batch, "Retry?", 0, GUI_HEIGHT / 2 - 40, GUI_WIDTH, Align.center, false);
+        mFont.draw(mGame.batch, "Try Again?", 0, GUI_HEIGHT / 2, GUI_WIDTH, Align.center, false);
+        mFont.draw(mGame.batch, "Tap your display.", 0, GUI_HEIGHT / 2 - 60, GUI_WIDTH, Align.center, false);
         mGame.batch.end();
 
         if(Gdx.input.justTouched()){
-            mGame.setScreen(new GameScreen(mGame));
+            mGame.setScreen(new StartScreen(mGame));
         }
     }
 }

@@ -12,6 +12,6 @@ public class JumpActionGame extends Game {
 		batch = new SpriteBatch();
 
 		// GameScreenを表示する
-		setScreen(new GameScreen(this));
+		setScreen(new StartScreen(this));
 	}
 }
